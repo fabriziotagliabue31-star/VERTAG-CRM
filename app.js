@@ -23,7 +23,7 @@
     user: null, perfil: null, cliente: null,
     etapas: [], equipo: [], campanas: [], leads: [], cobertura: [],
     filtro: { q: '', resp: '', origen: '', prov: '', perdidos: false },
-    filtroCob: 'todas', rango: '30', met: null, metTok: 0,
+    filtroCob: 'todas', rango: '30', met: null, metTok: 0, provSel: null,
     vista: 'pipeline', leadId: null, canal: null, dragId: null, timer: null
   };
 
@@ -406,7 +406,7 @@
     else if (S.vista === 'cobertura') {
       // No pisar lo que la persona está tocando en una tarjeta de provincia
       var ae = document.activeElement;
-      if (!(ae && ae.closest && ae.closest('#cob-grid') && /INPUT|SELECT/.test(ae.tagName))) renderCobertura();
+      if (!(ae && ae.closest && ae.closest('#cob-grid, #cob-detalle') && /INPUT|SELECT/.test(ae.tagName))) renderCobertura();
     }
     actualizarBadge();
   }
@@ -856,6 +856,46 @@
     return st;
   }
 
+  function mapaCobertura(filas) {
+    var M = window.VERTAG_MAPA;
+    if (!M || !M.provincias) return '<p class="empty">No se pudo cargar el mapa.</p>';
+    var porProv = {};
+    filas.forEach(function (f) { porProv[f.prov] = f; });
+    var items = M.provincias.filter(function (m) { return porProv[m.n]; });
+    items.sort(function (a, b) { return (S.provSel === a.n ? 1 : 0) - (S.provSel === b.n ? 1 : 0); });
+    var g = items.map(function (m) {
+      var f = porProv[m.n];
+      var texto = m.n + ': ' + etiquetaEstado(f.estado) + (f.dist ? ' · ' + f.dist + (f.dist === 1 ? ' distribuidor' : ' distribuidores') : '') +
+        (f.st.abiertos ? ' · ' + f.st.abiertos + (f.st.abiertos === 1 ? ' lead abierto' : ' leads abiertos') : '');
+      var opp = f.estado !== 'cubierta' && f.st.abiertos ? '<circle class="opp" cx="' + m.x + '" cy="' + m.y + '" r="11"/>' : '';
+      return '<g class="mp ' + f.estado + (S.provSel === m.n ? ' sel' : '') + '" data-action="sel-prov" data-prov="' + esc(m.n) + '" tabindex="0" role="button" aria-label="' + esc(texto) + '">' +
+        '<title>' + esc(texto) + '</title><path d="' + m.d + '"/>' + opp +
+        '<circle class="dot" cx="' + m.x + '" cy="' + m.y + '" r="' + (S.provSel === m.n ? 7 : 5) + '"/></g>';
+    }).join('');
+    return '<svg class="mapa-svg" viewBox="0 0 ' + M.w + ' ' + M.h + '" role="group" aria-label="Mapa de provincias de Argentina">' + g + '</svg>' +
+      '<ul class="leyenda"><li><i class="cubierta"></i>Con distribuidor</li><li><i class="en_negociacion"></i>En negociación</li><li><i class="sin_cobertura"></i>Sin cobertura</li><li><i class="opp"></i>Con leads esperando</li></ul>';
+  }
+
+  function detalleProvincia(filas, admin) {
+    var f = null;
+    filas.forEach(function (x) { if (x.prov === S.provSel) f = x; });
+    if (!f) return '<h2>Detalle</h2><p class="empty">Tocá una provincia del mapa para ver su estado y cargar distribuidores.</p>';
+    var controles = admin
+      ? '<div class="row">' +
+          '<label class="field">Estado<select class="cob-estado" data-prov="' + esc(f.prov) + '">' +
+            ESTADOS_COB.map(function (o) { return '<option value="' + o[0] + '"' + (o[0] === f.estado ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') +
+          '</select></label>' +
+          '<label class="field">Distribuidores<input class="cob-dist" data-prov="' + esc(f.prov) + '" type="number" min="0" step="1" value="' + f.dist + '" aria-label="Distribuidores en ' + esc(f.prov) + '"></label>' +
+        '</div>'
+      : '<p class="sub">' + f.dist + (f.dist === 1 ? ' distribuidor' : ' distribuidores') + '</p>';
+    return '<h2>' + esc(f.prov) + '</h2>' +
+      '<div><span class="chip-estado ' + f.estado + '">' + esc(etiquetaEstado(f.estado)) + '</span></div>' +
+      '<div class="prov-stats"><span><b>' + f.st.abiertos + '</b> ' + (f.st.abiertos === 1 ? 'abierto' : 'abiertos') + '</span><span><b>' + f.st.ganados + '</b> ' + (f.st.ganados === 1 ? 'ganado' : 'ganados') + '</span><span><b>' + f.st.total + '</b> en total</span></div>' +
+      controles +
+      (f.st.total ? '<div><button class="btn" data-action="ver-leads-prov" data-prov="' + esc(f.prov) + '">Ver leads de ' + esc(f.prov) + '</button></div>' : '') +
+      (admin ? '' : '<p class="sub">Solo los administradores pueden cambiar el estado.</p>');
+  }
+
   function renderCobertura() {
     var main = $('#main');
     if (!main) return;
@@ -916,6 +956,11 @@
         kpi('Leads esperando', esperando, 'En provincias sin distribuidor', esperando ? 'bad' : '') +
       '</div>' +
       (sinProv ? '<p class="sub">' + sinProv + (sinProv === 1 ? ' lead no tiene' : ' leads no tienen') + ' provincia cargada. <button class="link-inline" data-action="ver-sin-provincia">Verlos en el pipeline</button></p>' : '') +
+      '<div class="cob-layout">' +
+        '<section class="panel mapa-panel">' + mapaCobertura(filas) + '</section>' +
+        '<section class="panel" id="cob-detalle">' + detalleProvincia(filas, admin) + '</section>' +
+      '</div>' +
+      '<h2 class="sec-title">Lista de provincias</h2>' +
       '<div class="tools" role="group" aria-label="Filtrar provincias">' +
         filtroBtn('todas', 'Todas (' + PROVINCIAS.length + ')') + filtroBtn('cubierta', 'Con distribuidor (' + cub + ')') +
         filtroBtn('en_negociacion', 'En negociación (' + neg + ')') + filtroBtn('sin_cobertura', 'Sin cobertura (' + sin + ')') +
@@ -1224,6 +1269,7 @@
     else if (a === 'rango-met') { S.rango = b.getAttribute('data-valor'); cargarMetricas(false); }
     else if (a === 'reintentar-met') cargarMetricas(false);
     else if (a === 'nuevo-gasto') modalGasto();
+    else if (a === 'sel-prov') { S.provSel = b.getAttribute('data-prov'); renderCobertura(); var gm = document.querySelector('.mp.sel'); if (gm) gm.focus({ preventScroll: true }); }
     else if (a === 'filtro-cob') { S.filtroCob = b.getAttribute('data-valor'); renderCobertura(); }
     else if (a === 'ver-leads-prov') { S.filtro.prov = b.getAttribute('data-prov'); location.hash = '#/'; }
     else if (a === 'ver-sin-provincia') { S.filtro.prov = 'none'; location.hash = '#/'; }
@@ -1349,6 +1395,13 @@
     e.preventDefault();
     col.classList.remove('over');
     moverLead(S.dragId, col.getAttribute('data-etapa'));
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.classList && e.target.classList.contains('mp')) {
+      e.preventDefault();
+      e.target.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    }
   });
 
   window.addEventListener('hashchange', ruta);
