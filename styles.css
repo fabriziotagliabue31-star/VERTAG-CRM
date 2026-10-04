@@ -215,3 +215,50 @@ dialog h2 { font-size: 18px; }
   .side-foot small { display: none; }
   .main { padding: 20px 16px; }
 }
+
+/* Provincias y cobertura */
+.chip.prov { background: #E3EEFF; color: #1D4FB5; font-weight: 800; }
+.link-inline { background: none; border: 0; padding: 0; color: var(--green); font-weight: 700; text-decoration: underline; cursor: pointer; }
+.prov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.prov-card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.prov-card.cubierta { border-color: #9AD3BF; }
+.prov-card.en_negociacion { border-color: #F0DDA6; }
+.prov-card header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+.prov-card h3 { margin: 0; font-size: 16px; font-weight: 800; }
+.chip-estado { flex: none; font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; background: var(--chip); color: var(--ink-2); }
+.chip-estado.cubierta { background: var(--green-bg); color: var(--green); }
+.chip-estado.en_negociacion { background: var(--amber-bg); color: var(--amber); }
+.prov-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; color: var(--muted); font-size: 13px; }
+.prov-stats b { color: var(--ink); font-variant-numeric: tabular-nums; }
+.prov-card .row { flex-wrap: nowrap; gap: 10px; }
+.prov-card .row > :first-child { flex: 1.7 1 0; }
+.prov-card .row > :last-child { flex: 1 1 0; }
+.prov-card .field select, .prov-card .field input { min-width: 0; width: 100%; padding: 0 8px; }
+
+/* ---- Métricas ---- */
+.panel h2 { margin: 0; letter-spacing: -0.01em; }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 16px; }
+@media (max-width: 960px) { .grid-2 { grid-template-columns: minmax(0, 1fr); } }
+.chart { width: 100%; height: auto; display: block; }
+.chart .bar { fill: var(--green); }
+.chart .bar:hover { fill: var(--navy); }
+.chart .axis { stroke: var(--line); stroke-width: 1; }
+.chart .ax-txt { font-size: 11px; fill: var(--muted); font-family: inherit; }
+.kpis-5 .kpi { flex: 1 1 170px; }
+.fn-row { display: flex; flex-direction: column; gap: 6px; }
+.fn-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.fn-name { font-weight: 700; font-size: 13px; }
+.fn-track { background: var(--chip); border-radius: 8px; height: 14px; overflow: hidden; }
+.fn-bar { height: 100%; border-radius: 8px; background: var(--blue); }
+.fn-bar.f0 { background: #7B8AA0; }
+.fn-bar.f2 { background: var(--amber); }
+.fn-bar.f3 { background: var(--green); }
+.fn-num { display: flex; align-items: baseline; gap: 8px; }
+.fn-num b { font-size: 18px; font-variant-numeric: tabular-nums; }
+.fn-num small { font-size: 11px; color: var(--muted); font-weight: 600; }
+th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.muted { color: var(--muted); }
+.muted-row td { color: var(--muted); }
+.mini-track { display: flex; align-items: center; gap: 8px; min-width: 140px; }
+.mini-bar { height: 10px; border-radius: 5px; background: var(--green); min-width: 3px; }
+.mini-track span { font-weight: 700; font-variant-numeric: tabular-nums; }
