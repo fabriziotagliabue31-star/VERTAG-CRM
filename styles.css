@@ -262,3 +262,31 @@ th.num, td.num { text-align: right; font-variant-numeric: tabular-nums; white-sp
 .mini-track { display: flex; align-items: center; gap: 8px; min-width: 140px; }
 .mini-bar { height: 10px; border-radius: 5px; background: var(--green); min-width: 3px; }
 .mini-track span { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ---- Mapa de cobertura ---- */
+.cob-layout { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 1fr); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .cob-layout { grid-template-columns: minmax(0, 1fr); } }
+.mapa-panel { align-items: center; }
+.mapa-svg { width: 100%; max-width: 330px; max-height: 640px; height: auto; display: block; }
+.mp { cursor: pointer; outline: none; }
+.mp path { stroke: #fff; stroke-width: 1; stroke-linejoin: round; transition: filter .12s; }
+.mp:hover path, .mp:focus-visible path { filter: brightness(.94); }
+.mp.cubierta path { fill: #BFE6D8; }
+.mp.en_negociacion path { fill: #FFE3A3; }
+.mp.sin_cobertura path { fill: #E4E9F0; }
+.mp .dot { stroke: #fff; stroke-width: 1.5; }
+.mp.cubierta .dot { fill: var(--green); }
+.mp.en_negociacion .dot { fill: #D98A00; }
+.mp.sin_cobertura .dot { fill: #8A99AE; }
+.mp .opp { fill: none; stroke: #D98A00; stroke-width: 1.5; stroke-dasharray: 3 2; }
+.mp.sel path { stroke: var(--navy); stroke-width: 2; }
+.mp:focus-visible path { stroke: var(--blue); stroke-width: 2.5; }
+.leyenda { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 12px; font-weight: 600; color: var(--muted); justify-content: center; }
+.leyenda li { display: flex; align-items: center; gap: 6px; }
+.leyenda i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+.leyenda i.cubierta { background: var(--green); }
+.leyenda i.en_negociacion { background: #D98A00; }
+.leyenda i.sin_cobertura { background: #8A99AE; }
+.leyenda i.opp { border: 1.5px dashed #D98A00; width: 14px; height: 14px; box-sizing: border-box; }
+.sec-title { font-size: 16px; font-weight: 800; margin: 8px 0 -4px; }
+#cob-detalle h2 { margin: 0; }
